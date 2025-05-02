@@ -22,7 +22,7 @@ REQUIRED_CHANNEL_USERNAME = os.getenv("REQUIRED_CHANNEL_USERNAME")
 # MongoDB URI from environment variables
 DATABASE_URI = os.getenv("DATABASE_URI")
 my_client = MongoClient(DATABASE_URI)
-mydb = my_client["bot_database_name"]
+mydb = my_client["cluster0"]
 participants = mydb["participants"]
 
 
