@@ -156,9 +156,14 @@ async def run_web():
 
 # --- Start the Bot ---
 async def main():
-    await app.start()
-    print("Bot started.")
-    await asyncio.gather(run_web(), asyncio.Future())  # Keep the bot running
+    try:
+        print("Bot starting.")
+        await app.start()
+        print("Bot started.")
+        await asyncio.gather(run_web(), asyncio.Future())
+        print("Bot alive.")
+    except Exception as e:
+        print(f"Startup error: {e}")
 
 if __name__ == "__main__":
     asyncio.run(main())
