@@ -42,7 +42,21 @@ async def get_user_count():
 
 async def delete_user_data():
     participants.delete_many({})
+    
+async def is_user_in_channels(client, user_id):
+    try:
+        # Check if the user is a member of both channels
+        is_member_giveaway = await client.get_chat_member(GIVEAWAY_CHANNEL_USERNAME, user_id)
+        is_member_required = await client.get_chat_member(REQUIRED_CHANNEL_USERNAME, user_id)
 
+        # If the user is in both channels
+        if is_member_giveaway.status in ("member", "administrator", "creator") and \
+           is_member_required.status in ("member", "administrator", "creator"):
+            return True
+        return False
+    except Exception as e:
+        print(f"Error checking user membership: {e}")
+        return False
 # --- Command Handlers ---
 @app.on_message(filters.command("start"))
 async def start(client, message):
@@ -62,13 +76,19 @@ async def giveaway(client, message):
 @app.on_callback_query(filters.regex("join_giveaway"))
 async def join_giveaway_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
-    added = await add_user(user_id)
+    is_in_both_channels = await is_user_in_channels(client, user_id)
 
-    if not added:
-        await callback_query.answer("You already joined!", show_alert=True)
+    if not is_in_both_channels:
+        await callback_query.answer(
+            text=f"Please join both channels to participate ☺️",
+            show_alert=True
+        )
     else:
-        await callback_query.answer("You're in the giveaway!", show_alert=True)
-
+        added = await add_user(user_id)
+        if not added:
+            await callback_query.answer("You already joined!", show_alert=True)
+        else:
+            await callback_query.answer("You're in the giveaway!", show_alert=True)
 
 @app.on_message(filters.command("end"))
 async def end_giveaway(client, message):
