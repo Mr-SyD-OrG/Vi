@@ -147,24 +147,22 @@ async def end_giveaway(client, message):
 async def web_handler(request):
     return web.Response(text="Giveaway bot running.")
 
-async def run_web():
+async def web_server():
     app_web = web.Application()
     app_web.add_routes([web.get("/", web_handler)])
-    runner = web.AppRunner(app_web)
-    await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", int(os.environ.get("PORT", 8080)))
-    await site.start()
+    return app_web
 
 # --- Start the Bot ---
 async def main():
     print("Starting bot...")
     
     print("Bot started.")
-    await run_web()
+    
     print("Web server started.")
     await app.start()
-
-
+    runner = web.AppRunner(await web_server())
+    await runner.setup()
+    await web.TCPSite(runner, "0.0.0.0", PORT).start()
     await idle()  # Keeps the bot running until manually stopped
     await app.stop()
     print("Bot stopped.")
