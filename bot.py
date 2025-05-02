@@ -1,8 +1,8 @@
 import random
 import asyncio
 import os
+from pyrogram import idle
 from aiohttp import web
-from pyrogram.idle import idle
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pymongo import MongoClient
