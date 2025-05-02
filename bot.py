@@ -107,7 +107,7 @@ async def end_giveaway(client, message):
             in_giveaway = await is_user_in_channels(client, int(user_id), GIVEAWAY_CHANNEL_ID, GIVEAWAY_CHANNEL_USERNAME)
            # in_required = await is_user_in_channels(client, int(user_id), REQUIRED_CHANNEL_ID, REQUIRED_CHANNEL_USERNAME)
 
-            if in_giveaway #and in_required:
+            if in_giveaway: #and in_required:
                 valid_ids.append(user_id)
             else:
                 await delete_user(int(user_id))  # Remove from DB
