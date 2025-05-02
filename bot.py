@@ -141,10 +141,23 @@ async def end_giveaway(client, message):
     await delete_user_data()
 
 # --- Start the Bot ---
+# --- Web Server (Optional) ---
+async def web_handler(request):
+    return web.Response(text="Giveaway bot running.")
+
+async def run_web():
+    app_web = web.Application()
+    app_web.add_routes([web.get("/", web_handler)])
+    runner = web.AppRunner(app_web)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", int(os.environ.get("PORT", 8080)))
+    await site.start()
+
+# --- Start the Bot ---
 async def main():
     await app.start()
     print("Bot started.")
-    await asyncio.Future()  # Keep the bot running
+    await asyncio.gather(run_web(), asyncio.Future())  # Keep the bot running
 
 if __name__ == "__main__":
     asyncio.run(main())
