@@ -1,40 +1,49 @@
-import os
 import random
 import asyncio
-from aiohttp import web
+import os
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from pyrogram.errors import FloodWait
+from pymongo import MongoClient
+from pymongo.errors import DuplicateKeyError
+from dotenv import load_dotenv
 
-API_ID = 26320112
-API_HASH = "73adebcbc5ae76e8f66f3d848359ebe1"
-BOT_TOKEN = "8163418521:AAFbLakx4_DDCfsBfGPguoc07GjVCxfhHzM"
+# Load environment variables from .env file
+load_dotenv()
 
-CHANNEL_ID = -1002189391854
-GIVEAWAY_CHANNEL_USERNAME = "KLandGiveAway"
-REQUIRED_CHANNEL_USERNAME = "DumbCoconut"
+# Bot API Information from environment variables
+API_ID = int(os.getenv("API_ID"))
+API_HASH = os.getenv("API_HASH")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+# Channel Information from environment variables
+CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
+GIVEAWAY_CHANNEL_USERNAME = os.getenv("GIVEAWAY_CHANNEL_USERNAME")
+REQUIRED_CHANNEL_USERNAME = os.getenv("REQUIRED_CHANNEL_USERNAME")
 
-PARTICIPANTS_FILE = "participants.txt"
-first_round_numbers = []
+# MongoDB URI from environment variables
+DATABASE_URI = os.getenv("DATABASE_URI")
+my_client = MongoClient(DATABASE_URI)
+mydb = my_client["bot_database_name"]
+participants = mydb["participants"]
+
 
 app = Client("giveaway_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-def add_participant(user_id):
-    with open(PARTICIPANTS_FILE, "a") as f:
-        f.write(str(user_id) + "\n")
 
-def is_participant(user_id):
-    if not os.path.exists(PARTICIPANTS_FILE):
+# --- MongoDB ---
+async def add_user(user_id):
+    try:
+        participants.insert_one({'_id': user_id})
+        return True
+    except DuplicateKeyError:
         return False
-    with open(PARTICIPANTS_FILE, "r") as f:
-        return str(user_id) in f.read().splitlines()
 
-def get_participant_count():
-    if not os.path.exists(PARTICIPANTS_FILE):
-        return 0
-    with open(PARTICIPANTS_FILE, "r") as f:
-        return len(f.read().splitlines())
+async def get_user_count():
+    return participants.count_documents({})
 
+async def delete_user_data():
+    participants.delete_many({})
+
+# --- Command Handlers ---
 @app.on_message(filters.command("start"))
 async def start(client, message):
     await message.reply_text("Welcome to the Giveaway Bot!")
@@ -46,80 +55,52 @@ async def giveaway(client, message):
     ])
     await client.send_message(
         chat_id=CHANNEL_ID,
-        text=f"Click to join the giveaway!\n\nJoin @{GIVEAWAY_CHANNEL_USERNAME}\nJoin @{REQUIRED_CHANNEL_USERNAME}\n\nParticipants: {get_participant_count()}",
+        text=f"Click to join the giveaway!\n\nJoin @{GIVEAWAY_CHANNEL_USERNAME}\nJoin @{REQUIRED_CHANNEL_USERNAME}",
         reply_markup=keyboard
     )
 
 @app.on_callback_query(filters.regex("join_giveaway"))
 async def join_giveaway_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
-    if is_participant(user_id):
+    added = await add_user(user_id)
+
+    if not added:
         await callback_query.answer("You already joined!", show_alert=True)
     else:
-        add_participant(user_id)
         await callback_query.answer("You're in the giveaway!", show_alert=True)
 
-@app.on_message(filters.command("random"))
-async def random_numbers(client, message):
-    global first_round_numbers
+
+@app.on_message(filters.command("end"))
+async def end_giveaway(client, message):
     try:
         number_to_pick = int(message.text.split()[1])
-    except:
-        await message.reply_text("Usage: /random <number>")
+    except (IndexError, ValueError):
+        await message.reply_text("Usage: /end <number>. Example: /end 5")
         return
 
-    if not os.path.exists(PARTICIPANTS_FILE):
-        await message.reply_text("No participants yet.")
-        return
+    # Get all users who participated
+    users = participants.find()
+    participant_ids = [str(user['_id']) for user in users]
 
-    with open(PARTICIPANTS_FILE) as f:
-        participants = f.read().splitlines()
-
-    if number_to_pick > len(participants):
+    if number_to_pick > len(participant_ids):
         await message.reply_text("Not enough participants.")
         return
 
-    first_round_numbers = random.sample([int(pid) for pid in participants], number_to_pick)
-    await client.send_message(CHANNEL_ID, f"Winners: {', '.join(map(str, first_round_numbers))}")
+    selected_ids = random.sample(participant_ids, number_to_pick)
+    
+    winner_text = []
+    for user_id in selected_ids:
+        user = await app.get_users(int(user_id))
+        username = user.username if user.username else "No Username"
+        winner_text.append(f"User ID: {user_id}, Username: @{username}")
 
-@app.on_message(filters.command("pick"))
-async def pick_numbers(client, message):
-    global first_round_numbers
-    if not first_round_numbers:
-        await message.reply_text("Use /random first.")
-        return
-    try:
-        number_to_pick = int(message.text.split()[1])
-    except:
-        await message.reply_text("Usage: /pick <number>")
-        return
+    await client.send_message(CHANNEL_ID, f"Selected Winners:\n" + "\n".join(winner_text))
 
-    if number_to_pick > len(first_round_numbers):
-        await message.reply_text("Not enough winners in first round.")
-        return
-
-    picked = random.sample(first_round_numbers, number_to_pick)
-    await client.send_message(CHANNEL_ID, f"Final picks: {', '.join(map(str, picked))}")
-
-# Web server to keep Koyeb app alive
-async def web_handler(request):
-    return web.Response(text="Bot is running!")
-
-async def run_web():
-    app_web = web.Application()
-    app_web.add_routes([web.get("/", web_handler)])
-    runner = web.AppRunner(app_web)
-    await runner.setup()
-    site = web.TCPSite(runner, "0.0.0.0", int(os.environ.get("PORT", 8080)))
-    await site.start()
-
+# --- Start the Bot ---
 async def main():
     await app.start()
     print("Bot started.")
-    await asyncio.gather(
-        run_web(),
-        asyncio.Future()
-    )
+    await asyncio.Future()  # Keep the bot running
 
 if __name__ == "__main__":
     asyncio.run(main())
