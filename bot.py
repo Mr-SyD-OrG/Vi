@@ -5,10 +5,7 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-load_dotenv()
 
 # Bot API Information from environment variables
 API_ID = int(os.getenv("API_ID"))
