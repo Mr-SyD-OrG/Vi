@@ -158,10 +158,11 @@ async def run_web():
 # --- Start the Bot ---
 async def main():
     print("Starting bot...")
-    await app.start()
+    
     print("Bot started.")
     await run_web()
     print("Web server started.")
+    await app.start()
 
 
     await idle()  # Keeps the bot running until manually stopped
