@@ -12,7 +12,7 @@ from pymongo.errors import DuplicateKeyError
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-ADMIN = os.getenv("ADMIN")
+#ADMIN = os.getenv("ADMIN")
 # Channel Information from environment variables
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 GIVEAWAY_CHANNEL_USERNAME = os.getenv("GIVEAWAY_CHANNEL_USERNAME")
