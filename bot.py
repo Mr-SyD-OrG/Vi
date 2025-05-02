@@ -2,6 +2,7 @@ import random
 import asyncio
 import os
 from aiohttp import web
+from pyrogram.idle import idle
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pymongo import MongoClient
@@ -156,14 +157,17 @@ async def run_web():
 
 # --- Start the Bot ---
 async def main():
-    try:
-        print("Bot starting.")
-        await app.start()
-        print("Bot started.")
-        await asyncio.gather(run_web(), asyncio.Future())
-        print("Bot alive.")
-    except Exception as e:
-        print(f"Startup error: {e}")
+    print("Starting bot...")
+    await app.start()
+    print("Bot started.")
+    await run_web()
+    print("Web server started.")
+
+
+    await idle()  # Keeps the bot running until manually stopped
+    await app.stop()
+    print("Bot stopped.")
+#----------------------
 
 if __name__ == "__main__":
     asyncio.run(main())
