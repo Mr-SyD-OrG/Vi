@@ -142,7 +142,7 @@ async def end_giveaway(client, message):
     )
     await delete_user_data()
 
-# --- Start the Bot ---
+
 # --- Web Server (Optional) ---
 async def web_handler(request):
     return web.Response(text="Giveaway bot running.")
