@@ -98,23 +98,49 @@ async def end_giveaway(client, message):
         await message.reply_text("Usage: /end <number>. Example: /end 5")
         return
 
-    # Get all users who participated
     users = participants.find()
     participant_ids = [str(user['_id']) for user in users]
+    total_users = len(participant_ids)
 
-    if number_to_pick > len(participant_ids):
-        await message.reply_text("Not enough participants.")
+    valid_ids = []
+    for user_id in participant_ids:
+        try:
+            in_giveaway = await is_user_in_channel(client, int(user_id), GIVEAWAY_CHANNEL_ID, GIVEAWAY_CHANNEL_USERNAME)
+            in_required = await is_user_in_channel(client, int(user_id), REQUIRED_CHANNEL_ID, REQUIRED_CHANNEL_USERNAME)
+
+            if in_giveaway and in_required:
+                valid_ids.append(user_id)
+            else:
+                await delete_user(int(user_id))  # Remove from DB
+        except Exception as e:
+            print(f"Error checking user {user_id}: {e}")
+            continue
+
+    valid_count = len(valid_ids)
+
+    if number_to_pick > valid_count:
+        await message.reply_text(f"Not enough valid participants (have: {valid_count}).")
         return
 
-    selected_ids = random.sample(participant_ids, number_to_pick)
-    
+    random.shuffle(valid_ids)
+    selected_ids = random.sample(valid_ids, number_to_pick)
+
     winner_text = []
     for user_id in selected_ids:
-        user = await app.get_users(int(user_id))
-        username = user.username if user.username else "No Username"
-        winner_text.append(f"User ID: {user_id}, Username: @{username}")
+        try:
+            user = await app.get_users(int(user_id))
+            username = f"@{user.username}" if user.username else "No Username"
+            winner_text.append(f"User ID: {user_id}, Username: {username}")
+        except Exception:
+            winner_text.append(f"User ID: {user_id}, Username: Unknown")
 
-    await client.send_message(CHANNEL_ID, f"Selected Winners:\n" + "\n".join(winner_text))
+    await client.send_message(
+        CHANNEL_ID,
+        f"Total Participants: {total_users}\n"
+        f"Valid Participants: {valid_count}\n\n"
+        f"Selected Winners:\n" + "\n".join(winner_text)
+    )
+    await delete_user_data()
 
 # --- Start the Bot ---
 async def main():
