@@ -4,7 +4,7 @@ import os
 from pyrogram import idle
 from aiohttp import web
 from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
 
@@ -59,7 +59,7 @@ async def is_user_in_channels(client, user_id):
         return False
 # --- Command Handlers ---
 @app.on_message(filters.command("start"))
-async def start(client, message):
+async def start(client, message: Message):
     await message.reply_text("Welcome to the Giveaway Bot!")
 
 @app.on_message(filters.command("giveaway"))
