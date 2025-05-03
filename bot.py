@@ -16,12 +16,9 @@ loop = asyncio.get_event_loop()
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-#ADMIN = os.getenv("ADMIN")
+#ADMINS = os.getenv("ADMINS")
 ADMINS = 1733124290
-# Channel Information from environment variables
-CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
-GIVEAWAY_CHANNEL_USERNAME = os.getenv("GIVEAWAY_CHANNEL_USERNAME")
-REQUIRED_CHANNEL_USERNAME = os.getenv("REQUIRED_CHANNEL_USERNAME")
+
 PORT = "8080"
 # MongoDB URI from environment variables
 DATABASE_URI = os.getenv("DATABASE_URI")
@@ -109,7 +106,7 @@ async def giveaway(client, message):
     text = "Please Join On The Following Channels To Participate On Giveaway ☺️:\n\n"
     for ch in channels:
         text += f"• @{ch}\n"
-    text += "<i>Then Click On Join Giveaway</i>"
+    text += "\n<i>Then Click On Join Giveaway</i>"
     try:
         await client.send_message(
             chat_id=b_id,
