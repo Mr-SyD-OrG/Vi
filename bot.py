@@ -48,14 +48,12 @@ async def get_user_count():
 async def delete_user_data():
     participants.delete_many({})
 
-async def get_broadcast_channels():
-    channels = broadcast.find()
-    return [doc["_id"] for doc in channels]
+async def get_broadcast_channel():
+    doc = broadcast.find_one()
+    return doc["_id"] if doc else None
     
 async def add_broadcast_channel(channel_id: int):
-    # Remove all existing broadcast entries
     broadcast.delete_many({})
-    # Add the new one
     broadcast.insert_one({"_id": channel_id})
 
 
