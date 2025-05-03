@@ -43,20 +43,21 @@ async def get_user_count():
 async def delete_user_data():
     participants.delete_many({})
     
-async def is_user_in_channels(client, user_id):
+async def is_user_in_channels(bot, user_id):
     try:
-        # Check if the user is a member of both channels
-        is_member_giveaway = await client.get_chat_member(GIVEAWAY_CHANNEL_USERNAME, user_id)
-        is_member_required = await client.get_chat_member(REQUIRED_CHANNEL_USERNAME, user_id)
+        giveaway = await bot.get_chat_member(GIVEAWAY_CHANNEL_ID, user_id)
+        required = await bot.get_chat_member(REQUIRED_CHANNEL_ID, user_id)
 
-        # If the user is in both channels
-        if is_member_giveaway.status in ("member", "administrator", "creator") and \
-           is_member_required.status in ("member", "administrator", "creator"):
-            return True
-        return False
+    except UserNotParticipant:
+        pass
     except Exception as e:
         print(f"Error checking user membership: {e}")
-        return False
+    else:
+        if giveaway.status != ChatMemberStatus.BANNED and required.status != ChatMemberStatus.BANNED:
+            return True
+
+    return False
+
 # --- Command Handlers ---
 @app.on_message(filters.command("start"))
 async def start(client, message: Message):
