@@ -263,7 +263,7 @@ async def web_server():
     return app_web
 
 #------------------------
-async def update_giveaway_message():
+def update_giveaway_message():
     while True:
         doc = giveaway_db.find_one({"_id": "giveaway"})
         if doc:
@@ -298,6 +298,7 @@ async def main():
     await app.start()
     runner = web.AppRunner(await web_server())
     await runner.setup()
+    asyncio.create_task(update_giveaway_message())
     await web.TCPSite(runner, "0.0.0.0", PORT).start()
     await idle()  # Keeps the bot running until manually stopped
     await app.stop()
