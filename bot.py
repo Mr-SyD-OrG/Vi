@@ -106,6 +106,7 @@ async def giveaway(client, message):
     text = "Please Join On The Following Channels To Participate On Giveaway ☺️:\n\n"
     for ch in channels:
         text += f"• {ch}\n"
+    text += "<i>Then Click On Join Giveaway</i>"
     try:
         await client.send_message(
             chat_id=b_id,
