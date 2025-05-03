@@ -83,9 +83,6 @@ async def giveaway(client, message):
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
-    # Check if the user is in both channels
-    
-    
     await client.send_message(
         chat_id=b_id,
         text=(
