@@ -105,9 +105,9 @@ async def giveaway(client, message):
     count = await get_user_count()
 
     keyboard = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
+        [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")],
+        [InlineKeyboardButton(f"Participants: {count}", callback_data="count_participants")]
     ])
-    
     text = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
     for ch in channels:
         text += f"• @{ch}\n"
@@ -136,10 +136,9 @@ async def giveaway(client, message):
                 [InlineKeyboardButton(f"Participants: {current_count}", callback_data="count_participants")]
            ])
             try:
-                await client.edit_message_text(
+                await client.edit_message_reply_markup(
                     chat_id=b_id,
                     message_id=sent.id,
-                    text=new_text,
                     reply_markup=kyboard
                 )
             except Exception as e:
