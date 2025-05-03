@@ -16,7 +16,7 @@ loop = asyncio.get_event_loop()
 API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-#ADMINS = os.getenv("ADMINS")
+ADMINS = list(map(int, os.getenv("ADMINS", "").split(" ")))
 ADMINS = 1821530401
 
 PORT = "8080"
