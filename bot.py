@@ -253,6 +253,10 @@ async def view_fsub(client, message):
 
     await message.reply(text)
 
+
+@app.on_message(filters.command("clear") & filters.user(ADMINS))
+async def vclear(client, message):
+    await delete_user_data()
 # --- Web Server (Optional) ---
 async def web_handler(request):
     return web.Response(text="Giveaway bot running.")
