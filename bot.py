@@ -168,10 +168,10 @@ async def join_giveaway_callback(client, callback_query: CallbackQuery):
         else:
             await callback_query.answer("You're in the giveaway! [Added] ", show_alert=True)
 
-@app.on_callback_query(filters.regex("giveaway"))
-async def joiy_callback(client, callback_query: CallbackQuery):
+@app.on_callback_query(filters.regex("count_participants"))
+async def count_partpants(client, callback_query: CallbackQuery):
     count = await get_user_count()
-    await callback_query.answer(f"Current Particpate {count}", show_alert=True)
+    await callback_query.answer(f"Current Participants {count}", show_alert=True)
 
 @app.on_message(filters.command("end") & filters.user(ADMINS))
 async def end_giveaway(client, message):
