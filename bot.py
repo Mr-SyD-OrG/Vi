@@ -132,7 +132,7 @@ async def giveaway(client, message):
             new_text = text  # Start with the original text
 
             # If the message has been manually edited, use the latest version of the text
-            edited_message = await client.get_messages(b_id, message_id=sent.id)
+            edited_message = await client.get_messages(b_id, message_ids=sent.id)
             if edited_message.text:
                 new_text = edited_message.text  # Get the latest manually edited text
             kyboard = InlineKeyboardMarkup([
