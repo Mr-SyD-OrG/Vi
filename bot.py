@@ -122,7 +122,7 @@ async def giveaway(client, message):
         )
         # Store message info for updates
         global giveaway_message
-        giveaway_message = {"chat_id": b_id, "message_id": sent.message_id}
+        giveaway_message = {"chat_id": b_id, "message_id": sent.id}
     except Exception as e:
         await message.reply_text(f"Error sending giveaway message:\n`{e}`", quote=True)
 
