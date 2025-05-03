@@ -95,6 +95,9 @@ async def start(client, message: Message):
 async def giveaway(client, message):
     user_id = message.from_user.id
     b_id = await get_broadcast_channel()
+    if not b_id:
+        await message.reply("No broadcast channel set.")
+        return
     channels = [doc["_id"] for doc in fsub.find()]
     if not channels:
         await message.reply("No Fsub channels set.")
