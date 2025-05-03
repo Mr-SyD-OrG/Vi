@@ -99,7 +99,7 @@ async def giveaway(client, message):
     b_id = await get_broadcast_channels()
     channels = [doc["_id"] for doc in fsub.find()]
     if not channels:
-        await message.reply("No fsub channels set.")
+        await message.reply("No Broadcast channels set.")
         return
 
     keyboard = InlineKeyboardMarkup([
@@ -230,7 +230,7 @@ async def del_fsub(client, message):
 async def view_fsub(client, message):
     channels = [doc["_id"] for doc in fsub.find()]
     if not channels:
-        await message.reply("No fsub channels set.")
+        await message.reply("No fsub channels set.\nUse /addfsub To Add And /delfsub To Remove.")
         return
 
     text = "**Current FSub Channels:**\nUse /addfsub To Add And /delfsub To Remove.\n"
