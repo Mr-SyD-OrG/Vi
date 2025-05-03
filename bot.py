@@ -186,7 +186,12 @@ async def end_giveaway(client, message):
         f"Selected Winners:\n" + "\n".join(winner_text)
     )
     await delete_user_data()
-    
+
+@app.on_message(filters.command("delbc") & filters.user(ADMINS))
+async def clear_broadcast(client, message):
+    result = broadcast.delete_many({})
+    await message.reply_text(f"Cleared {result.deleted_count} broadcast channel(s).")
+
 @app.on_message(filters.command("bc") & filters.user(ADMINS))
 async def end_giveaway(client, message):
     try:
@@ -198,7 +203,7 @@ async def end_giveaway(client, message):
     if added:
         await message.reply_text("Channel added to broadcast list.\nDon't Forget To Make Me Admin")
     else:
-        await message.reply_text("Channel already exists.")
+        await message.reply_text("Channel already exists. Use /delbc To Delete")
 
 @app.on_message(filters.command("addfsub") & filters.user(ADMINS))
 async def add_fsub(client, message):
