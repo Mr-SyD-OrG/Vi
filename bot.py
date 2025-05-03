@@ -128,9 +128,7 @@ async def giveaway(client, message):
 
         # Only update the message if the count has changed
         if current_count != cached_count:
-            cached_count = current_count
-            edited_message = await client.get_messages(b_id, message_ids=sent.id)
-            new_text = edited_message.text  # Get the latest manually edited text
+            cached_count = current_count  
             kyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")],
                 [InlineKeyboardButton(f"Participants: {current_count}", callback_data="count_participants")]
