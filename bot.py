@@ -26,6 +26,7 @@ mydb = my_client["cluster0"]
 participants = mydb["participants"]
 broadcast = mydb["broadcast"]
 fsub = mydb["fsub"]
+giveaway_db = db["giveaway"]
 
 app = Client("giveaway_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
@@ -87,34 +88,43 @@ async def is_user_in_channels(bot, user_id):
 async def start(client, message: Message):
     await message.reply_text("Welcome to the Giveaway Bot!")
 
+giveaway_message = None  # Global or temp storage (use DB if persistent)
+
 @app.on_message(filters.command("giveaway") & filters.user(ADMINS))
 async def giveaway(client, message):
-    user_id = message.from_user.id
     b_id = await get_broadcast_channel()
     if not b_id:
         await message.reply("No broadcast channel set.")
         return
+
     channels = [doc["_id"] for doc in fsub.find()]
     if not channels:
         await message.reply("No Fsub channels set.")
         return
 
+    count = await get_user_count()
+
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
-    text = "Please Join On The Following Channels To Participate On Giveaway ☺️:\n\n"
+    
+    text = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
     for ch in channels:
         text += f"• @{ch}\n"
-    text += "\n<i>Then Click On Join Giveaway</i>"
+    text += "\n<i>Then Click On Join Giveaway</i>\n\n"
+    text += f"<b>Current Participants:</b> {count}"
+
     try:
-        await client.send_message(
+        sent = await client.send_message(
             chat_id=b_id,
             text=text,
             reply_markup=keyboard
         )
+        # Store message info for updates
+        global giveaway_message
+        giveaway_message = {"chat_id": b_id, "message_id": sent.message_id}
     except Exception as e:
         await message.reply_text(f"Error sending giveaway message:\n`{e}`", quote=True)
-
 
 @app.on_callback_query(filters.regex("join_giveaway"))
 async def join_giveaway_callback(client, callback_query: CallbackQuery):
@@ -252,13 +262,39 @@ async def web_server():
     app_web.add_routes([web.get("/", web_handler)])
     return app_web
 
+#------------------------
+async def update_giveaway_message():
+    while True:
+        doc = giveaway_db.find_one({"_id": "giveaway"})
+        if doc:
+            channels = [doc["_id"] for doc in fsub.find()]
+            if not channels:
+                print("No Fsub channels set.")
+                continue
+
+            count = await get_user_count()
+            text = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
+            for ch in channels:
+                text += f"• @{ch}\n"
+            text += "\n<i>Then Click On Join Giveaway</i>\n\n"
+            text += f"<b>Current Participants:</b> {count}"
+
+            try:
+                await app.edit_message_text(
+                    chat_id=doc["chat_id"],
+                    message_id=doc["message_id"],
+                    text=text,
+                    reply_markup=InlineKeyboardMarkup([
+                        [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
+                    ])
+                )
+            except Exception as e:
+                print(f"Error updating giveaway message: {e}")
+        await asyncio.sleep(300)  # 5 minutes
+
 # --- Start the Bot ---
 async def main():
     print("Starting bot...")
-    
-    print("Bot started.")
-    
-    print("Web server started.")
     await app.start()
     runner = web.AppRunner(await web_server())
     await runner.setup()
