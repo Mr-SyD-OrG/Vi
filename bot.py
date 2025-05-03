@@ -278,6 +278,7 @@ async def view_fsub(client, message):
 @app.on_message(filters.command("clear") & filters.user(ADMINS))
 async def vclear(client, message):
     await delete_user_data()
+    await message.reply("✅")
 # --- Web Server (Optional) ---
 async def web_handler(request):
     return web.Response(text="Giveaway bot running.")
@@ -288,35 +289,6 @@ async def web_server():
     return app_web
 
 #------------------------
-async def update_giveaway_message():
-    while True:
-        doc = giveaway_db.find_one({"_id": "giveaway"})
-        if doc:
-            channels = [doc["_id"] for doc in fsub.find()]
-            if not channels:
-                await asyncio.sleep(15)
-                print("No Fsub channels set.")
-                continue
-
-            count = await get_user_count()
-            text = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
-            for ch in channels:
-                text += f"• @{ch}\n"
-            text += "\n<i>Then Click On Join Giveaway</i>\n\n"
-            text += f"<b>Current Participants:</b> {count}"
-
-            try:
-                await app.edit_message_text(
-                    chat_id=doc["chat_id"],
-                    message_id=doc["message_id"],
-                    text=text,
-                    reply_markup=InlineKeyboardMarkup([
-                        [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
-                    ])
-                )
-            except Exception as e:
-                print(f"Error updating giveaway message: {e}")
-        await asyncio.sleep(5)  # 5 minutes
 
 # --- Start the Bot ---
 async def main():
@@ -324,7 +296,6 @@ async def main():
     await app.start()
     runner = web.AppRunner(await web_server())
     await runner.setup()
-    asyncio.create_task(update_giveaway_message())
     await web.TCPSite(runner, "0.0.0.0", PORT).start()
     await idle()  # Keeps the bot running until manually stopped
     await app.stop()
