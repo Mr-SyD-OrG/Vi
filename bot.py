@@ -99,7 +99,7 @@ async def giveaway(client, message):
     b_id = await get_broadcast_channels()
     channels = [doc["_id"] for doc in fsub.find()]
     if not channels:
-        await message.reply("No Broadcast channels set.")
+        await message.reply("No Fsub channels set.")
         return
 
     keyboard = InlineKeyboardMarkup([
