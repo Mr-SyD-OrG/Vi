@@ -263,7 +263,7 @@ async def web_server():
     return app_web
 
 #------------------------
-def update_giveaway_message():
+async def update_giveaway_message():
     while True:
         doc = giveaway_db.find_one({"_id": "giveaway"})
         if doc:
