@@ -29,6 +29,7 @@ my_client = MongoClient(DATABASE_URI)
 mydb = my_client["cluster0"]
 participants = mydb["participants"]
 broadcast = mydb["broadcast"]
+fsub = mydb["fsub"]
 
 app = Client("giveaway_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
@@ -58,6 +59,20 @@ async def add_broadcast_channel(channel_id: int):
     except DuplicateKeyError:
         return False
 
+async def add_fsub_channel(channel_id):
+    try:
+        fsub.insert_one({"_id": channel_id})
+        return True
+    except DuplicateKeyError:
+        return False
+        
+async def remove_fsub_channel(channel_id):
+    result = fsub.delete_one({"_id": channel_id})
+    return result.deleted_count > 0
+
+async def get_fsub_channels():
+    return [doc["_id"] for doc in fsub.find()]
+
 async def is_user_in_channels(bot, user_id):
     try:
         channels = get_fsub_channels()
@@ -81,19 +96,21 @@ async def start(client, message: Message):
 @app.on_message(filters.command("giveaway"))
 async def giveaway(client, message):
     user_id = message.from_user.id
+    b_id = await get_broadcast_channels()
 
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
+    try:
     await client.send_message(
-        chat_id=CHANNEL_ID,
-      #  chat_id=b_id,
+        chat_id=b_id,
         text=(
             f"Please Join Both Channels First To Participate ☺️:\n\n"
             f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
             f"@{REQUIRED_CHANNEL_USERNAME}"
         ),
-        reply_markup=keyboard
+    False
+        eply_markup=keyboard
     )
 
 
