@@ -94,7 +94,7 @@ async def start(client, message: Message):
 @app.on_message(filters.command("giveaway") & filters.user(ADMINS))
 async def giveaway(client, message):
     user_id = message.from_user.id
-    b_id = await get_broadcast_channels()
+    b_id = await get_broadcast_channel()
     channels = [doc["_id"] for doc in fsub.find()]
     if not channels:
         await message.reply("No Fsub channels set.")
@@ -141,6 +141,7 @@ async def end_giveaway(client, message):
         await message.reply_text("Usage: /end <number>. Example: /end 5")
         return
 
+    b_id = await get_broadcast_channel()
     users = participants.find()
     participant_ids = [str(user['_id']) for user in users]
     total_users = len(participant_ids)
@@ -178,7 +179,7 @@ async def end_giveaway(client, message):
             winner_text.append(f"User ID: {user_id}, Username: Unknown")
 
     await client.send_message(
-        CHANNEL_ID,
+        b_id,
         f"Total Participants: {total_users}\n"
         f"Valid Participants: {valid_count}\n\n"
         f"Selected Winners:\n" + "\n".join(winner_text)
