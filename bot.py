@@ -84,7 +84,8 @@ async def giveaway(client, message):
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
     await client.send_message(
-        chat_id=b_id,
+        chat_id=CHANNEL_ID,
+      #  chat_id=b_id,
         text=(
             f"Please Join Both Channels First To Participate ☺️:\n\n"
             f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
