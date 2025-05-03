@@ -66,17 +66,20 @@ async def start(client, message: Message):
 async def giveaway(client, message):
     user_id = message.from_user.id
 
-    # Check if the user is in both channels
-    if not await is_user_in_channels(client, user_id):
-        await message.reply_text(
-            f"Please Join Both Channels First To Participate ☺️:\n\n"
-            f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
-            f"@{REQUIRED_CHANNEL_USERNAME}"
-        )
-        return
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
+    # Check if the user is in both channels
+    if not await is_user_in_channels(client, user_id):
+        await client.send_message(
+            chat_id=user_id,
+            text=(
+                 f"Please Join Both Channels First To Participate ☺️:\n\n"
+                 f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
+                 f"@{REQUIRED_CHANNEL_USERNAME}"
+             ),
+            reply_markup=keyboard
+    
     await client.send_message(
         chat_id=user_id,
         text=(
