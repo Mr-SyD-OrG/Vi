@@ -27,7 +27,7 @@ DATABASE_URI = os.getenv("DATABASE_URI")
 my_client = MongoClient(DATABASE_URI)
 mydb = my_client["cluster0"]
 participants = mydb["participants"]
-
+broadcast = mydb["broadcast"]
 
 app = Client("giveaway_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
@@ -45,7 +45,17 @@ async def get_user_count():
 
 async def delete_user_data():
     participants.delete_many({})
+
+async def get_broadcast_channels():
+    channels = broadcast.find()
+    return [doc["_id"] for doc in channels]
     
+async def add_broadcast_channel(channel_id: int):
+    try:
+        broadcast.insert_one({"_id": channel_id})
+        return True
+    except DuplicateKeyError:
+        return False
 async def is_user_in_channels(bot, user_id):
     try:
         giveaway = await bot.get_chat_member(GIVEAWAY_CHANNEL_USERNAME, user_id)
@@ -74,25 +84,14 @@ async def giveaway(client, message):
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
     # Check if the user is in both channels
-    if not await is_user_in_channels(client, user_id):
-        await client.send_message(
-            chat_id=user_id,
-            text=(
-                 f"Please Join Both Channels First To Participate ☺️:\n\n"
-                 f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
-                 f"@{REQUIRED_CHANNEL_USERNAME}"
-             ),
-            reply_markup=keyboard
-        )
-        return
+    
     
     await client.send_message(
-        chat_id=user_id,
+        chat_id=b_id,
         text=(
-            "Click To Join The Giveaway!\n\n"
-            f"Joined @{GIVEAWAY_CHANNEL_USERNAME}\n"
-            f"Joined @{REQUIRED_CHANNEL_USERNAME}"
-            "\nAnd Thanks For Joining In Our Channel. 🎉"
+            f"Please Join Both Channels First To Participate ☺️:\n\n"
+            f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
+            f"@{REQUIRED_CHANNEL_USERNAME}"
         ),
         reply_markup=keyboard
     )
@@ -111,7 +110,7 @@ async def join_giveaway_callback(client, callback_query: CallbackQuery):
     else:
         added = await add_user(user_id)
         if not added:
-            await callback_query.answer("You already joined!", show_alert=True)
+            await callback_query.answer("You have already joined!", show_alert=True)
         else:
             await callback_query.answer("You're in the giveaway!", show_alert=True)
 
@@ -130,7 +129,7 @@ async def end_giveaway(client, message):
     valid_ids = []
     for user_id in participant_ids:
         try:
-            in_giveaway = await is_user_in_channels(client, int(user_id), GIVEAWAY_CHANNEL_ID, GIVEAWAY_CHANNEL_USERNAME)
+            in_giveaway = await is_user_in_channels(client, int(user_id))
            # in_required = await is_user_in_channels(client, int(user_id), REQUIRED_CHANNEL_ID, REQUIRED_CHANNEL_USERNAME)
 
             if in_giveaway: #and in_required:
@@ -166,6 +165,19 @@ async def end_giveaway(client, message):
         f"Selected Winners:\n" + "\n".join(winner_text)
     )
     await delete_user_data()
+    
+@app.on_message(filters.command("bc"))
+async def end_giveaway(client, message):
+    try:
+        channel_id = int(message.text.split()[1])
+    except (IndexError, ValueError):
+        await message.reply_text("Usage: /bc <id>. Example: /id -100xxxxxx5")
+        return
+    added = await add_broadcast_channel(channel_id)
+    if added:
+        await message.reply_text("Channel added to broadcast list.")
+    else:
+        await message.reply_text("Channel already exists.")
 
 
 # --- Web Server (Optional) ---
