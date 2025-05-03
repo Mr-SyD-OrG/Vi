@@ -17,6 +17,7 @@ API_ID = int(os.getenv("API_ID"))
 API_HASH = os.getenv("API_HASH")
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 #ADMIN = os.getenv("ADMIN")
+ADMINS = 1733124290
 # Channel Information from environment variables
 CHANNEL_ID = int(os.getenv("CHANNEL_ID"))
 GIVEAWAY_CHANNEL_USERNAME = os.getenv("GIVEAWAY_CHANNEL_USERNAME")
@@ -178,6 +179,44 @@ async def end_giveaway(client, message):
     else:
         await message.reply_text("Channel already exists.")
 
+@app.on_message(filters.command("addfsub") & filters.user(ADMINS))
+async def add_fsub(client, message):
+    if len(message.command) < 2:
+        return await message.reply("Usage: /addfsub <channel_id or @username>")
+    
+    channel = message.command[1]
+    try:
+        await client.get_chat(channel)
+        fsub.insert_one({"_id": channel})
+        await message.reply(f"Channel `{channel}` added to fsub list.")
+    except Exception as e:
+        await message.reply(f"Failed to add: {e}")
+
+
+@app.on_message(filters.command("delfsub") & filters.user(ADMINS))
+async def del_fsub(client, message):
+    if len(message.command) < 2:
+        return await message.reply("Usage: /delfsub <channel_id or @username>")
+    
+    channel = message.command[1]
+    result = fsub.delete_one({"_id": channel})
+    if result.deleted_count:
+        await message.reply(f"Channel `{channel}` removed from fsub list.")
+    else:
+        await message.reply("Channel not found in fsub list.")
+
+@app.on_message(filters.command("setfsub") & filters.user(ADMINS))
+async def view_fsub(client, message):
+    channels = [doc["_id"] for doc in fsub.find()]
+    if not channels:
+        await message.reply("No fsub channels set.")
+        return
+
+    text = "**Current FSub Channels:**\n\n"
+    for ch in channels:
+        text += f"`{ch}`\n Tᴏ Rᴇᴍᴏᴠᴇ `/delfsub {ch}`\n\n"
+
+    await message.reply(text)
 
 # --- Web Server (Optional) ---
 async def web_handler(request):
