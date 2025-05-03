@@ -131,7 +131,7 @@ async def giveaway(client, message):
         # Rebuild the message text
         txt = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
         for ch in channels:
-            text += f"• @{ch}\n"
+            txt += f"• @{ch}\n"
         txt += "\n<i>Then Click On Join Giveaway</i>\n\n"
         txt += f"<b>Current Participants:</b> {cont}"
 
@@ -139,7 +139,7 @@ async def giveaway(client, message):
             await client.edit_message_text(
                 chat_id=b_id,
                 message_id=sent.id,
-                text=text,
+                text=txt,
                 reply_markup=keyboard
             )
         except Exception as e:
