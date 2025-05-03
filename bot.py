@@ -26,7 +26,7 @@ mydb = my_client["cluster0"]
 participants = mydb["participants"]
 broadcast = mydb["broadcast"]
 fsub = mydb["fsub"]
-giveaway_db = mydb["giveaway"]
+cached_count = None
 
 app = Client("giveaway_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
@@ -125,25 +125,27 @@ async def giveaway(client, message):
         giveaway_message = {"chat_id": b_id, "message_id": sent.id}
     except Exception as e:
         await message.reply_text(f"Error sending giveaway message:\n`{e}`", quote=True)
+    global cached_count
     while True:
-        cont = await get_user_count()
+        current_count = await get_user_count()
 
-        # Rebuild the message text
-        txt = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
-        for ch in channels:
-            txt += f"• @{ch}\n"
-        txt += "\n<i>Then Click On Join Giveaway</i>\n\n"
-        txt += f"<b>Current Participants:</b> {cont}"
-
-        try:
-            await client.edit_message_text(
-                chat_id=b_id,
-                message_id=sent.id,
-                text=txt,
-                reply_markup=keyboard
-            )
-        except Exception as e:
-            print(f"Error updating giveaway message: {e}")
+        # Only update the message if the count has changed
+        if current_count != cached_count:
+            cached_count = current_count  # Update cache with the new count
+            text = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
+            for ch in channels:
+                text += f"• @{ch}\n"
+            text += "\n<i>Then Click On Join Giveaway</i>\n\n"
+            text += f"<b>Current Participants:</b> {current_count}"
+            try:
+                await client.edit_message_text(
+                    chat_id=b_id,
+                    message_id=sent.id,
+                    text=text,
+                    reply_markup=keyboard
+                )
+            except Exception as e:
+                print(f"Error updating giveaway message: {e}")
 
         await asyncio.sleep(8)
         
