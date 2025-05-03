@@ -73,7 +73,7 @@ async def get_fsub_channels():
 
 async def is_user_in_channels(bot, user_id):
     try:
-        channels = get_fsub_channels()
+        channels = await get_fsub_channels()
         for channel_id in channels:
             member = await bot.get_chat_member(channel_id, user_id)
             if member.status == ChatMemberStatus.BANNED:
