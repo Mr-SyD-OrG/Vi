@@ -7,6 +7,9 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
+from pyrogram.enums import ChatMemberStatus
+from pyrogram.errors import UserNotParticipant
+
 loop = asyncio.get_event_loop()
 
 # Bot API Information from environment variables
