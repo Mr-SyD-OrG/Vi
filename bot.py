@@ -294,7 +294,7 @@ async def update_giveaway_message():
                 )
             except Exception as e:
                 print(f"Error updating giveaway message: {e}")
-        await asyncio.sleep(300)  # 5 minutes
+        await asyncio.sleep(5)  # 5 minutes
 
 # --- Start the Bot ---
 async def main():
