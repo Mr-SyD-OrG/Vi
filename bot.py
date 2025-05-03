@@ -93,7 +93,7 @@ async def is_user_in_channels(bot, user_id):
 async def start(client, message: Message):
     await message.reply_text("Welcome to the Giveaway Bot!")
 
-@app.on_message(filters.command("giveaway"))
+@app.on_message(filters.command("giveaway") & filters.user(ADMINS))
 async def giveaway(client, message):
     user_id = message.from_user.id
     b_id = await get_broadcast_channels()
@@ -133,7 +133,7 @@ async def join_giveaway_callback(client, callback_query: CallbackQuery):
         else:
             await callback_query.answer("You're in the giveaway!", show_alert=True)
 
-@app.on_message(filters.command("end"))
+@app.on_message(filters.command("end") & filters.user(ADMINS))
 async def end_giveaway(client, message):
     try:
         number_to_pick = int(message.text.split()[1])
@@ -185,7 +185,7 @@ async def end_giveaway(client, message):
     )
     await delete_user_data()
     
-@app.on_message(filters.command("bc"))
+@app.on_message(filters.command("bc") & filters.user(ADMINS))
 async def end_giveaway(client, message):
     try:
         channel_id = int(message.text.split()[1])
@@ -231,9 +231,9 @@ async def view_fsub(client, message):
         await message.reply("No fsub channels set.")
         return
 
-    text = "**Current FSub Channels:**\n\n"
+    text = "**Current FSub Channels:**\nUse /addfsub To Add And /delfsub To Remove.\n"
     for ch in channels:
-        text += f"`{ch}`\n Tᴏ Rᴇᴍᴏᴠᴇ `/delfsub {ch}`\n\n"
+        text += f"• `{ch}`\n Tᴏ Rᴇᴍᴏᴠᴇ `/delfsub {ch}`\n\n"
 
     await message.reply(text)
 
