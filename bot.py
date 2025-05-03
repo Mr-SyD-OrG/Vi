@@ -145,8 +145,7 @@ async def giveaway(client, message):
         except Exception as e:
             print(f"Error updating giveaway message: {e}")
 
-        await asyncio.sleep(10)  # wait 5 minutes before updating again
-
+        await asyncio.sleep(8)
         
 @app.on_callback_query(filters.regex("join_giveaway"))
 async def join_giveaway_callback(client, callback_query: CallbackQuery):
