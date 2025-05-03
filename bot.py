@@ -121,7 +121,7 @@ async def giveaway(client, message):
         # Store message info for updates
     except Exception as e:
         await message.reply_text(f"Error sending giveaway message:\n`{e}`", quote=True)
-    await asyncio.sleep(40)
+    await asyncio.sleep(30)
     global cached_count
     while True:
         current_count = await get_user_count()
