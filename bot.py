@@ -101,17 +101,19 @@ async def giveaway(client, message):
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
+
     try:
-    await client.send_message(
-        chat_id=b_id,
-        text=(
-            f"Please Join Both Channels First To Participate ☺️:\n\n"
-            f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
-            f"@{REQUIRED_CHANNEL_USERNAME}"
-        ),
-    False
-        eply_markup=keyboard
-    )
+        await client.send_message(
+            chat_id=b_id,
+            text=(
+                f"Please Join Both Channels First To Participate ☺️:\n\n"
+                f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
+                f"@{REQUIRED_CHANNEL_USERNAME}"
+            ),
+            reply_markup=keyboard
+        )
+    except Exception as e:
+        await message.reply_text(f"Error sending giveaway message:\n`{e}`", quote=True)
 
 
 @app.on_callback_query(filters.regex("join_giveaway"))
