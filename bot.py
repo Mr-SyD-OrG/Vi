@@ -273,6 +273,7 @@ async def update_giveaway_message():
         if doc:
             channels = [doc["_id"] for doc in fsub.find()]
             if not channels:
+                await asyncio.sleep(15)
                 print("No Fsub channels set.")
                 continue
 
