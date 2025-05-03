@@ -64,14 +64,30 @@ async def start(client, message: Message):
 
 @app.on_message(filters.command("giveaway"))
 async def giveaway(client, message):
+    user_id = message.from_user.id
+
+    # Check if the user is in both channels
+    if not await is_user_in_channels(client, user_id):
+        await message.reply_text(
+            f"Please Join Both Channels First To Participate ☺️:\n\n"
+            f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
+            f"@{REQUIRED_CHANNEL_USERNAME}"
+        )
+        return
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
-    await app.send_message(
-        chat_id=CHANNEL_ID,
-        text=f"Click to join the giveaway!\n\nJoin @{GIVEAWAY_CHANNEL_USERNAME}\nJoin @{REQUIRED_CHANNEL_USERNAME}",
+    await client.send_message(
+        chat_id=user_id,
+        text=(
+            "Click To Join The Giveaway!\n\n"
+            f"Joined @{GIVEAWAY_CHANNEL_USERNAME}\n"
+            f"Joined @{REQUIRED_CHANNEL_USERNAME}"
+            "\nAnd Thanks For Joining In Our Channel. 🎉"
+        ),
         reply_markup=keyboard
     )
+
 
 @app.on_callback_query(filters.regex("join_giveaway"))
 async def join_giveaway_callback(client, callback_query: CallbackQuery):
