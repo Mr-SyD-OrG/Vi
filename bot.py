@@ -133,7 +133,7 @@ async def join_giveaway_callback(client, callback_query: CallbackQuery):
 
     if not is_in_both_channels:
         await callback_query.answer(
-            text=f"Please join both channels to participate ☺️",
+            text=f"Please Join On The Following Channels To Participate ☺️",
             show_alert=True
         )
     else:
@@ -141,7 +141,7 @@ async def join_giveaway_callback(client, callback_query: CallbackQuery):
         if not added:
             await callback_query.answer("You have already joined!", show_alert=True)
         else:
-            await callback_query.answer("You're in the giveaway!", show_alert=True)
+            await callback_query.answer("You're in the giveaway! [Added] ", show_alert=True)
 
 @app.on_message(filters.command("end") & filters.user(ADMINS))
 async def end_giveaway(client, message):
