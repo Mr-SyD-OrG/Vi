@@ -48,8 +48,8 @@ async def delete_user_data():
     
 async def is_user_in_channels(bot, user_id):
     try:
-        giveaway = await bot.get_chat_member(GIVEAWAY_CHANNEL_ID, user_id)
-        required = await bot.get_chat_member(REQUIRED_CHANNEL_ID, user_id)
+        giveaway = await bot.get_chat_member(GIVEAWAY_CHANNEL_USERNAME, user_id)
+        required = await bot.get_chat_member(REQUIRED_CHANNEL_USERNAME, user_id)
 
     except UserNotParticipant:
         pass
