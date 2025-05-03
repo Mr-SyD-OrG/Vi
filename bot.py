@@ -79,6 +79,8 @@ async def giveaway(client, message):
                  f"@{REQUIRED_CHANNEL_USERNAME}"
              ),
             reply_markup=keyboard
+        )
+        return
     
     await client.send_message(
         chat_id=user_id,
