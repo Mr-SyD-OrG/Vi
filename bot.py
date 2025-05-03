@@ -7,7 +7,7 @@ from pyrogram import Client, filters
 from pyrogram.types import Message, InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pymongo import MongoClient
 from pymongo.errors import DuplicateKeyError
-
+loop = asyncio.get_event_loop()
 
 # Bot API Information from environment variables
 API_ID = int(os.getenv("API_ID"))
@@ -169,4 +169,7 @@ async def main():
 #----------------------
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        loop.run_until_complete(main())
+    except KeyboardInterrupt:
+        print('Service Stopped Bye 👋')
