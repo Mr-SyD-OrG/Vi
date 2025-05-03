@@ -97,19 +97,21 @@ async def start(client, message: Message):
 async def giveaway(client, message):
     user_id = message.from_user.id
     b_id = await get_broadcast_channels()
+    channels = [doc["_id"] for doc in fsub.find()]
+    if not channels:
+        await message.reply("No fsub channels set.")
+        return
 
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
-
+    text = "Please Join On The Following Channels To Participate On Giveaway ☺️:\n\n"
+    for ch in channels:
+        text += f"• {ch}\n"
     try:
         await client.send_message(
             chat_id=b_id,
-            text=(
-                f"Please Join Both Channels First To Participate ☺️:\n\n"
-                f"@{GIVEAWAY_CHANNEL_USERNAME}\n"
-                f"@{REQUIRED_CHANNEL_USERNAME}"
-            ),
+            text=text,
             reply_markup=keyboard
         )
     except Exception as e:
@@ -194,7 +196,7 @@ async def end_giveaway(client, message):
         return
     added = await add_broadcast_channel(channel_id)
     if added:
-        await message.reply_text("Channel added to broadcast list.")
+        await message.reply_text("Channel added to broadcast list.\nDon't Forget To Make Me Admin")
     else:
         await message.reply_text("Channel already exists.")
 
@@ -207,7 +209,7 @@ async def add_fsub(client, message):
     try:
         await client.get_chat(channel)
         fsub.insert_one({"_id": channel})
-        await message.reply(f"Channel `{channel}` added to fsub list.")
+        await message.reply(f"Channel `{channel}` added to fsub list.\nDon't Forget To Make Me Admin")
     except Exception as e:
         await message.reply(f"Failed to add: {e}")
 
@@ -215,7 +217,7 @@ async def add_fsub(client, message):
 @app.on_message(filters.command("delfsub") & filters.user(ADMINS))
 async def del_fsub(client, message):
     if len(message.command) < 2:
-        return await message.reply("Usage: /delfsub <channel_id or @username>")
+        return await message.reply("Usage: /delfsub <username> WithOut @")
     
     channel = message.command[1]
     result = fsub.delete_one({"_id": channel})
