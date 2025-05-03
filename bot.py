@@ -67,7 +67,7 @@ async def giveaway(client, message):
     keyboard = InlineKeyboardMarkup([
         [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")]
     ])
-    await client.send_message(
+    await app.send_message(
         chat_id=CHANNEL_ID,
         text=f"Click to join the giveaway!\n\nJoin @{GIVEAWAY_CHANNEL_USERNAME}\nJoin @{REQUIRED_CHANNEL_USERNAME}",
         reply_markup=keyboard
