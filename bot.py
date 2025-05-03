@@ -125,7 +125,29 @@ async def giveaway(client, message):
         giveaway_message = {"chat_id": b_id, "message_id": sent.id}
     except Exception as e:
         await message.reply_text(f"Error sending giveaway message:\n`{e}`", quote=True)
+    while True:
+        cont = await get_user_count()
 
+        # Rebuild the message text
+        txt = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
+        for ch in channels:
+            text += f"• @{ch}\n"
+        txt += "\n<i>Then Click On Join Giveaway</i>\n\n"
+        txt += f"<b>Current Participants:</b> {cont}"
+
+        try:
+            await client.edit_message_text(
+                chat_id=b_id,
+                message_id=sent.id,
+                text=text,
+                reply_markup=keyboard
+            )
+        except Exception as e:
+            print(f"Error updating giveaway message: {e}")
+
+        await asyncio.sleep(10)  # wait 5 minutes before updating again
+
+        
 @app.on_callback_query(filters.regex("join_giveaway"))
 async def join_giveaway_callback(client, callback_query: CallbackQuery):
     user_id = callback_query.from_user.id
