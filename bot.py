@@ -137,7 +137,7 @@ async def giveaway(client, message):
                 new_text = edited_message.text  # Get the latest manually edited text
             kyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")],
-                [InlineKeyboardButton(f"Participants: {count}", callback_data="giveaway")]
+                [InlineKeyboardButton(f"Participants: {current_count}", callback_data="giveaway")]
            ])
             try:
                 await client.edit_message_text(
