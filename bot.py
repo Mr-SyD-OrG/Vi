@@ -26,7 +26,7 @@ mydb = my_client["cluster0"]
 participants = mydb["participants"]
 broadcast = mydb["broadcast"]
 fsub = mydb["fsub"]
-giveaway_db = db["giveaway"]
+giveaway_db = mydb["giveaway"]
 
 app = Client("giveaway_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
