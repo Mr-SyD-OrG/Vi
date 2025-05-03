@@ -139,7 +139,7 @@ async def giveaway(client, message):
                 await client.edit_message_text(
                     chat_id=b_id,
                     message_id=sent.id,
-                    text=text,
+                    text=new_text,
                     reply_markup=kyboard
                 )
             except Exception as e:
