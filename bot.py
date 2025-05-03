@@ -121,20 +121,16 @@ async def giveaway(client, message):
         # Store message info for updates
     except Exception as e:
         await message.reply_text(f"Error sending giveaway message:\n`{e}`", quote=True)
-    await asyncio.sleep(30)
+    await asyncio.sleep(60)
     global cached_count
     while True:
         current_count = await get_user_count()
 
         # Only update the message if the count has changed
         if current_count != cached_count:
-            cached_count = current_count  # Update cache with the new count
-            new_text = text  # Start with the original text
-
-            # If the message has been manually edited, use the latest version of the text
+            cached_count = current_count
             edited_message = await client.get_messages(b_id, message_ids=sent.id)
-            if edited_message.text:
-                new_text = edited_message.text  # Get the latest manually edited text
+            new_text = edited_message.text  # Get the latest manually edited text
             kyboard = InlineKeyboardMarkup([
                 [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")],
                 [InlineKeyboardButton(f"Participants: {current_count}", callback_data="count_participants")]
