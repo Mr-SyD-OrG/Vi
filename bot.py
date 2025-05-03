@@ -53,11 +53,11 @@ async def get_broadcast_channels():
     return [doc["_id"] for doc in channels]
     
 async def add_broadcast_channel(channel_id: int):
-    try:
-        broadcast.insert_one({"_id": channel_id})
-        return True
-    except DuplicateKeyError:
-        return False
+    # Remove all existing broadcast entries
+    broadcast.delete_many({})
+    # Add the new one
+    broadcast.insert_one({"_id": channel_id})
+
 
 async def add_fsub_channel(channel_id):
     try:
