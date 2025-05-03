@@ -111,9 +111,7 @@ async def giveaway(client, message):
     text = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
     for ch in channels:
         text += f"• @{ch}\n"
-    text += "\n<i>Then Click On Join Giveaway</i>\n\n"
-    text += f"<b>Current Participants:</b> {count}"
-
+    text += "\n<i>Then Click On Join Giveaway</i>"
     try:
         sent = await client.send_message(
             chat_id=b_id,
@@ -121,10 +119,9 @@ async def giveaway(client, message):
             reply_markup=keyboard
         )
         # Store message info for updates
-        global giveaway_message
-        giveaway_message = {"chat_id": b_id, "message_id": sent.id}
     except Exception as e:
         await message.reply_text(f"Error sending giveaway message:\n`{e}`", quote=True)
+    await asyncio.sleep(8)
     global cached_count
     while True:
         current_count = await get_user_count()
@@ -132,13 +129,22 @@ async def giveaway(client, message):
         # Only update the message if the count has changed
         if current_count != cached_count:
             cached_count = current_count  # Update cache with the new count
-            text += f"<b>Current Participants:</b> {current_count}"
+            new_text = text  # Start with the original text
+
+            # If the message has been manually edited, use the latest version of the text
+            edited_message = await client.get_messages(b_id, message_id=sent.id)
+            if edited_message.text:
+                new_text = edited_message.text  # Get the latest manually edited text
+            kyboard = InlineKeyboardMarkup([
+                [InlineKeyboardButton("Join Giveaway", callback_data="join_giveaway")],
+                [InlineKeyboardButton(f"Participants: {count}", callback_data="count_participants")]
+           ])
             try:
                 await client.edit_message_text(
                     chat_id=b_id,
                     message_id=sent.id,
                     text=text,
-                    reply_markup=keyboard
+                    reply_markup=kyboard
                 )
             except Exception as e:
                 print(f"Error updating giveaway message: {e}")
@@ -161,6 +167,11 @@ async def join_giveaway_callback(client, callback_query: CallbackQuery):
             await callback_query.answer("You have already joined!", show_alert=True)
         else:
             await callback_query.answer("You're in the giveaway! [Added] ", show_alert=True)
+
+@app.on_callback_query(filters.regex("giveaway"))
+async def joiy_callback(client, callback_query: CallbackQuery):
+    count = await get_user_count()
+    await callback_query.answer(f"Current Particpate {count}", show_alert=True)
 
 @app.on_message(filters.command("end") & filters.user(ADMINS))
 async def end_giveaway(client, message):
