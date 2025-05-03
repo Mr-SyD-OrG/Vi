@@ -162,7 +162,7 @@ async def main():
     await app.start()
     runner = web.AppRunner(await web_server())
     await runner.setup()
-  #  await web.TCPSite(runner, "0.0.0.0", PORT).start()
+    await web.TCPSite(runner, "0.0.0.0", PORT).start()
     await idle()  # Keeps the bot running until manually stopped
     await app.stop()
     print("Bot stopped.")
