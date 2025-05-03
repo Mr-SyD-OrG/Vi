@@ -132,10 +132,6 @@ async def giveaway(client, message):
         # Only update the message if the count has changed
         if current_count != cached_count:
             cached_count = current_count  # Update cache with the new count
-            text = "Please Join On The Following Channels To Participate In The Giveaway ☺️:\n\n"
-            for ch in channels:
-                text += f"• @{ch}\n"
-            text += "\n<i>Then Click On Join Giveaway</i>\n\n"
             text += f"<b>Current Participants:</b> {current_count}"
             try:
                 await client.edit_message_text(
