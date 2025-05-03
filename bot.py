@@ -56,20 +56,21 @@ async def add_broadcast_channel(channel_id: int):
         return True
     except DuplicateKeyError:
         return False
+
 async def is_user_in_channels(bot, user_id):
     try:
-        giveaway = await bot.get_chat_member(GIVEAWAY_CHANNEL_USERNAME, user_id)
-        required = await bot.get_chat_member(REQUIRED_CHANNEL_USERNAME, user_id)
-
+        channels = get_fsub_channels()
+        for channel_id in channels:
+            member = await bot.get_chat_member(channel_id, user_id)
+            if member.status == ChatMemberStatus.BANNED:
+                return False
     except UserNotParticipant:
-        pass
+        return False
     except Exception as e:
         print(f"Error checking user membership: {e}")
-    else:
-        if giveaway.status != ChatMemberStatus.BANNED and required.status != ChatMemberStatus.BANNED:
-            return True
+        return False
+    return True
 
-    return False
 
 # --- Command Handlers ---
 @app.on_message(filters.command("start"))
