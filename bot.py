@@ -45,6 +45,10 @@ async def get_user_count():
 async def delete_user_data():
     participants.delete_many({})
 
+async def delete_user(user_id):
+    result = participants.delete_one({'_id': user_id})
+    return result.deleted_count > 0
+
 async def get_broadcast_channel():
     doc = broadcast.find_one()
     return doc["_id"] if doc else None
